@@ -27,7 +27,8 @@ class Location(models.Model):
     apartment = models.CharField(max_length=5)
 
     def __str__(self):
-        return self.country + ', ' + self.city + ',' + self.street + ' ' + self.building + '/' + self.apartment
+        return str(self.country) + ', ' + str(self.city) + ',' + str(self.street) + ' ' + str(self.building) + '/' \
+               + str(self.apartment)
 
 
 class Patient(models.Model):
