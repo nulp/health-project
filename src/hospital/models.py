@@ -52,25 +52,6 @@ class Patient(models.Model):
         return self.user.first_name + ' ' + self.user.last_name
 
 
-class PatientWeight(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
-    value = models.DecimalField(max_digits=10, decimal_places=3)
-
-
-class PatientPreasure(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
-    value_up = models.IntegerField()
-    value_low = models.IntegerField()
-
-
-class PatientPulse(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
-    value = models.IntegerField()
-
-
 class DoctorSpeciality(models.Model):
     specialty = models.CharField(max_length=30, primary_key=True)
 
@@ -154,6 +135,8 @@ class Medicament(models.Model):
     end_date = models.DateField(null=True)
     reg_num = models.CharField(max_length=20)
     instruction_url = models.URLField()
+    flora = models.ManyToManyField('Flora')
+    disease = models.ManyToManyField('Disease')
 
     MNN_CHOICES = (
         ('M', 'Моно'),
@@ -170,6 +153,31 @@ class Medicament(models.Model):
         return self.uk_name
 
 
+class Disease(models.Model):
+    name = models.CharField(max_length=250)
+    disease_type = models.CharField(max_length=250) 
+
+#  Left for later
+# class Vaccine(models.Model):
+#     name = models.CharField(max_length=100)
+#     live = models.NullBooleanField()
+#     absorved = models.NullBooleanField()
+#     inactivated = models.NullBooleanField()
+#     oral = models.NullBooleanField()
+#
+#     def __str__(self):
+#         return self.name
+#
+#
+# class VaccineApplied(models.Model):
+#     date = models.DateTimeField()
+#     vaccine = models.ForeignKey(Vaccine, on_delete=models.CASCADE)
+#     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+#
+#     def __str__(self):
+#         return '%s | by (%s)' % (self.patient, self.date)
+
+
 # class Department(models.Model):
 #     name = models.CharField(max_length=50)
 #     director = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
@@ -178,34 +186,11 @@ class Medicament(models.Model):
 #     def __str__(self):
 #         return self.name
 
-class Disease(models.Model):
-    name = models.CharField(max_length=250)
-
-
-class Vaccine(models.Model):
-    name = models.CharField(max_length=100)
-    live = models.NullBooleanField()
-    absorved = models.NullBooleanField()
-    inactivated = models.NullBooleanField()
-    oral = models.NullBooleanField()
-
-    def __str__(self):
-        return self.name
-
-
-class VaccineApplied(models.Model):
-    date = models.DateTimeField()
-    vaccine = models.ForeignKey(Vaccine, on_delete=models.CASCADE)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return '%s | by (%s)' % (self.patient, self.date)
-
-
 class Diagnoses(models.Model):
     disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
     valid = models.BooleanField(default=True)
+    localization = models.CharField(max_length=150)
 
 
 class Pathologie(models.Model):
@@ -238,8 +223,15 @@ class Case(models.Model):
     end_date = models.DateField(auto_now=True)
 
 
-class CaseDiagnos(models.Model):
+class Event(models.Model):
+    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    data = JSONField()
+
+
+class EventDiagnos(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     diagnos = models.ForeignKey(Diagnoses, on_delete=models.CASCADE)
 
 
@@ -254,7 +246,7 @@ class CasePathologie(models.Model):
 
 
 class Analysis(models.Model):
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     updated = models.DateTimeField(auto_now=True, auto_now_add=False)
     start_date = models.DateField(auto_now=True)
     end_date = models.DateField(auto_now=True)
@@ -263,20 +255,54 @@ class Analysis(models.Model):
 
 class Prescription(models.Model):
     timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     medicament = models.ForeignKey(Medicament, on_delete=models.CASCADE)
     quantity = models.TextField()
+    reaction = models.CharField(max_length=150)
 
 
-class Event(models.Model):
-    timestamp = models.DateTimeField(auto_now=True)
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+class Measurement(models.Model):
+    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     data = JSONField()
 
 
 class EventComment(models.Model):
     comment = models.TextField()
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.comment
+
+
+"""
+ + Вакцинації поки забрати
+    (Лишити на перспективу, але поки забрати)
+
++ Показники стану пацієнта (об'єднати вагу і тд в одну штуку так само в Джейсон)
+    Тип + таблиці з данами. Краще підвязати динаміку до кейсу, а не до пацієнта.
+
+(обговорити) Чойсом добавити вибір розмірності
+
+(обговорити) Патології об'єднати з хворобами , так як це те саме по суті. Тільки інший тип
+
+
+(обговорити) Протипоказання зробити проміжною між хворобами і медикаментами менітумені
+
++ Реакція на лікування в прекрипшін. Зв'язок є через хвороби. 
+
++ Флора повинна впливати на мадекамент менітумені.
+
++ Івент підвязати до лікаря. Якщо потрібно консультація.
+
++ Перекинути лікаря з кейсу в івенти. (Додали до івенту)
+
++ Прескрипшин, аналізи і діагноз до івенту а не до кейсу. Бо прив'язка до лікаря.
+
++++ Зробити трошки з назвами для кращого розуміння.
+
+
+
+/*Переробити патологію на алергію, з реакцією на препарати і тд*/ це вже закоментовано, не дивитися
+"""
