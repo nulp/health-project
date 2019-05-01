@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block main %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Name title</h1>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body text-center">
+                <h5 class="card-title text-center">1234</h5>
+                <!--<p class="card-text"><strong>Some quick example text to build on the card title and make up the bulk of the card's content.</strong></p>-->
+                <a href="patient" class="btn btn-outline-success">Patients</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body text-center">
+                <h5 class="card-title text-center">4567</h5>
+                <!--<p class="card-text"><strong>Some quick example text to build on the card title and make up the bulk of the card's content.</strong></p>-->
+                <a href="#" class="btn btn-outline-warning">Pending</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body text-center">
+                <h5 class="card-title text-center">6789</h5>
+                <!--<p class="card-text"><strong>Some quick example text to build on the card title and make up the bulk of the card's content.</strong></p>-->
+                <a href="#" class="btn btn-outline-info">Doctors</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
