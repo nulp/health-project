@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Ім'я</th>
+            <th scope="col">Прізвище</th>
+            <th scope="col">Дата народженя</th>
+            <th scope="col">Стать</th>
+            <th scope="col">Місто</th>
+            <th scope="col">Адрес</th>
+            <th scope="col">Поштовий індекс</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for object in object_list %}
+            <tr>
+                <td>{{ object.user.first_name }}</td>
+                <td>{{ object.user.last_name }}</td>
+                <td>{{ object.birthday }}</td>
+                <td>{{ object.gender }}</td>
+                <td>{{ object.city }}</td>
+                <td>{{ object.state }}</td>
+                <td>{{ object.zip_code }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+        Додати
+    </button>
+    <!-- Modal -->
+
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <button type="button" class="close" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="POST" action=".">
+                    {% csrf_token %}
+                    <div class="modal-body">
+
+                        <div class="patient_form">
+
+
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="inputFirstName">Ім'я</label>
+                                    <input type="text" class="form-control" id="inputFirstName" placeholder="Віталій" name="first_name">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="inputLastName">Прізвище</label>
+                                    <input type="text" class="form-control" id="inputLastName" placeholder="Борщов" name='last_name'>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="inputMiddleName">По батькові</label>
+                                    <input type="text" class="form-control" id="inputMiddleName" placeholder="Віталійович" name="middle_name">
+                                </div>
+                            </div>
+                            <div class="form row">
+                                <div class="form-group col-md-6">
+                                    <label for="inputBirthDate">Дата народженя</label>
+                                    <input type="date" class="form-control" id="inputBirthDate" name="birthday">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-3">
+                                    <label for="inputGender">Стать</label>
+                                    <div class="inputGender">
+                                        <input class="gender" type="radio" name="gender" id="inputGender"
+                                               value="Male">Чоловік
+                                        <input class="gender" type="radio" name="gender" id="inputGender"
+                                               value="Female">Жінка
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="inputCity">Місто</label>
+                                    <input type="text" class="form-control" id="inputCity" name="city">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="inputAdress">Адрес</label>
+                                    <input type="text" class="form-control" id="inputAdress" name="street">
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="inputZip">Поштовий індекс</label>
+                                    <input type="text" class="form-control" id="inputZip" name="zip_code">
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрити</button>
+                        <button type="submit" class="btn btn-primary">Зберегти</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
