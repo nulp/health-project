@@ -53,7 +53,7 @@ class Patient(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 
     def __str__(self):
-        return self.user.first_name + ' ' + self.user.last_name
+        return self.surname + ' ' + self.name
 
 
 class DoctorSpeciality(models.Model):
@@ -68,16 +68,20 @@ class DoctorSpeciality(models.Model):
 
 class Doctor(models.Model):
     user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=64)
+    surname = models.CharField(max_length=64)
+    patronymic = models.CharField(max_length=64)
+
     specialty = models.ForeignKey(DoctorSpeciality, on_delete=models.CASCADE)
 
-    certification_CHOICES = (
-        ('A', 'American Board'),
-        ('B', 'Bachelor'),
-    )
-    certification = models.CharField(max_length=30, choices=certification_CHOICES)
+    # certification_CHOICES = (
+    #     ('A', 'American Board'),
+    #     ('B', 'Bachelor'),
+    # )
+    # certification = models.CharField(max_length=30, choices=certification_CHOICES)
 
     def __str__(self):
-        return self.user.first_name + ' ' + self.user.last_name
+        return self.surname + ' ' + self.name + ' ' + self.patronymic
 
 
 class FarmGroup(models.Model):
