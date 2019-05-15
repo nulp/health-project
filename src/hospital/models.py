@@ -32,13 +32,17 @@ class Location(models.Model):
 
 
 class Patient(models.Model):
-    user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE)
-    ssn = models.CharField(max_length=9, unique=True)
+    # user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE)
+    # ssn = models.CharField(max_length=9, unique=True)
+    name = models.CharField(max_length=64)
+    surname = models.CharField(max_length=64)
+    patronymic = models.CharField(max_length=64)
+
     birthday = models.DateField()
-    street = models.CharField(max_length=50)
-    city = models.CharField(max_length=20)
-    state = models.CharField(max_length=20)
-    zip_code = models.CharField(max_length=5)
+    street = models.CharField(max_length=128)
+    city = models.CharField(max_length=64)
+    state = models.CharField(max_length=64)
+    zip_code = models.CharField(max_length=32)
 
     GENDER_CHOICES = (
         ('M', 'Male'),
@@ -98,7 +102,7 @@ class Substance(models.Model):
 
 
 class Applicant(models.Model):
-    uk_name = models.CharField(max_length=250)
+    uk_name = models.CharField(max_length=500)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     address = models.TextField()
 
@@ -107,7 +111,7 @@ class Applicant(models.Model):
 
 
 class Manufacturer(models.Model):
-    uk_name = models.CharField(max_length=250)
+    uk_name = models.CharField(max_length=500)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     address = models.TextField()
 
@@ -138,16 +142,8 @@ class Medicament(models.Model):
     flora = models.ManyToManyField('Flora')
     disease = models.ManyToManyField('Disease')
 
-    MNN_CHOICES = (
-        ('M', 'Моно'),
-        ('C', 'Комбінований'),
-        ('N', 'Без МНН')
-    )
-
-    mnn = models.CharField(max_length=1, choices=MNN_CHOICES)
-    issuance = models.BooleanField()
+    mnn = models.CharField(max_length=50)
     farm_group = models.ManyToManyField('FarmGroup')
-    description = models.CharField(max_length=500)
 
     def __str__(self):
         return self.uk_name
@@ -155,36 +151,8 @@ class Medicament(models.Model):
 
 class Disease(models.Model):
     name = models.CharField(max_length=250)
-    disease_type = models.CharField(max_length=250) 
+    disease_type = models.CharField(max_length=250)
 
-#  Left for later
-# class Vaccine(models.Model):
-#     name = models.CharField(max_length=100)
-#     live = models.NullBooleanField()
-#     absorved = models.NullBooleanField()
-#     inactivated = models.NullBooleanField()
-#     oral = models.NullBooleanField()
-#
-#     def __str__(self):
-#         return self.name
-#
-#
-# class VaccineApplied(models.Model):
-#     date = models.DateTimeField()
-#     vaccine = models.ForeignKey(Vaccine, on_delete=models.CASCADE)
-#     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-#
-#     def __str__(self):
-#         return '%s | by (%s)' % (self.patient, self.date)
-
-
-# class Department(models.Model):
-#     name = models.CharField(max_length=50)
-#     director = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
-#     staff = models.ManyToManyField(User, related_name='+')
-
-#     def __str__(self):
-#         return self.name
 
 class Diagnoses(models.Model):
     disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
