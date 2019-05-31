@@ -6,10 +6,14 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 
 from .models import Patient, Country, Medicament, Applicant, Manufacturer, FarmGroup, MedType
-from .forms import PatientForm
+# from .forms import PatientForm
 
 import time, datetime
 import csv
+
+import requests
+from bs4 import BeautifulSoup
+import json
 
 # Create your views here.
 
@@ -151,3 +155,68 @@ def med_db_fill_test():
 
         for elem in created_manufactures:
             created_medicament.manufacturer.add(elem)
+    
+
+def instruction_parser(name):
+    t = requests.get(f'https://tabletki.ua/uk/{name}/')
+
+    if t.status_code != 200:
+        return None
+
+    soup = BeautifulSoup(t.text,"html.parser")
+    div = soup.find_all('div', attrs={'id':'ctl00_MAIN_ContentPlaceHolder_TranslatedPanel'})
+
+    if not div:
+        return None
+    
+    instriction_div = div[0]
+
+    content = {}
+    cur = ''
+
+    for tag in instriction_div.contents[1:-1]:
+        
+        if tag.name == 'h2':
+            content[tag.string] = ''
+            cur = tag.string
+        else:
+            if tag.name != 'p':    #пофіксити цей момент, щоб вподальшому опрацьовувати і таблиці
+                continue
+
+            if cur == '':
+                continue
+            
+            for text in tag.strings:
+                content[cur] += text
+
+    return content
+
+
+def instruction_db_fill_test(request):
+    meds = Medicament.objects.values_list('pk','uk_name').iterator()
+
+    c = Medicament.objects.count()
+
+    i = 0
+    t = 0
+
+    for med in meds:
+        content = instruction_parser(med[1].replace('®',''))
+        i += 1
+        print(f'{i}/{c}')
+        print(med[1])
+        if content:
+            t += 1
+            print('!')
+            json_content = json.dumps(content)
+            if 'Показання' not in content.keys():
+                content['Показання'] = '' 
+
+            if 'Протипоказання' not in content.keys(): 
+                content['Протипоказання'] = ''
+            
+            Medicament.objects.filter(pk=med[0]).update(contraindication=content['Протипоказання'],
+                    indication=content['Показання'],
+                    json_instruction=json_content)
+
+    print(f'{c/t}% has instructions')
