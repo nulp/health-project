@@ -81,6 +81,24 @@ class MedicamentListView(ListView):
         return context
 
 
+def show_med_instruction_view(request, pk):
+    
+    med = get_object_or_404(Medicament, pk=pk)
+    
+    instruction = None
+    
+    if med.json_instruction:
+        instruction = json.loads(med.json_instruction)
+
+    ctx = {
+        'instruction' : instruction,
+        'name' : med.uk_name,
+        'uni_name' : med.uni_name
+    }
+
+    return render(request, 'med_instruction.html', context=ctx)
+
+    
 def patient_form_view(request):
     qs = Patient.objects.all()
     form = PatientForm(request.POST or None)

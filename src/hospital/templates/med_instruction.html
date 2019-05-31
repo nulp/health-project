@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}{{name}}{% endblock %}
+
+{% block main %}
+<div class="instruction_name">
+    <h3>{{name}}</h3>
+    <h4>{{uni_name}}</h4>
+</div>
+{% if instruction %}
+    {% for k, v in instruction.items %}
+        <div id="accordion">
+            <div class="card">
+            <div class="card-header" id="heading{{forloop.counter}}">
+                <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{forloop.counter}}" aria-expanded="false" aria-controls="collapse{{forloop.counter}}">
+                    {{k}}
+                </button>
+                </h5>
+            </div>
+        
+            <div id="collapse{{forloop.counter}}" class="collapse show" aria-labelledby="heading{{forloop.counter}}" data-parent="#accordion">
+                <div class="card-body">
+                {{v}}
+                </div>
+            </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+<div class="instruction_fail">
+    <h5>Нажаль інструкція відсутня</h5>
+</div>
+{% endif %}
+{% endblock %}

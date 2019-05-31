@@ -127,3 +127,11 @@ main button {
     cursor: pointer;
     background-color: #fafafa !important;
 }
+
+.instruction_name {
+    text-align: center
+}
+
+.btn-link{
+    font-size: 20px;
+}
