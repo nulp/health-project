@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}HP{% endblock %}
+
+{% block main %}
+    <div class="container">
+
+
+        {% if doctor %}
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Поточні пацієнти {% if not old_cases %}- відсутні{% endif %}</h1>
+            </div>
+
+            {% if active_cases %}
+                <div class="row">
+                    <div class="card" style="width: 100%">
+                        <table class="table table-striped active-cases-table">
+                            <thead>
+                            <tr>
+                                <th scope="col">№</th>
+                                <th scope="col">Пацієнт</th>
+                                <th scope="col">Дата народженя</th>
+                                <th scope="col">Поступив</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for case in active_cases %}
+                                <tr class="cases-table-row" data-id="{{ case.id }}">
+                                    <td>{{ case.id }}</td>
+                                    <td>{{ case.patient }}</td>
+                                    <td>{{ case.patient.birthday|date:"d.m.Y" }}</td>
+                                    <td>{{ case.start_date|date:"d.m.Y" }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+            {% endif %}
+
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Минулі пацієнти {% if not old_cases %}- відсутні{% endif %}</h1>
+            </div>
+
+            {% if old_cases %}
+                <div class="row">
+                    <div class="card" style="width: 100%">
+                        <table class="table table-striped active-cases-table">
+                            <thead>
+                            <tr>
+                                <th scope="col">№</th>
+                                <th scope="col">Пацієнт</th>
+                                <th scope="col">Дата народженя</th>
+                                <th scope="col">Поступив</th>
+                                <th scope="col">Закрито</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for case in old_cases %}
+                                <tr class="cases-table-row" data-id="{{ case.id }}">
+                                    <td>{{ case.id }}</td>
+                                    <td>{{ case.patient }}</td>
+                                    <td>{{ case.patient.birthday|date:"d.m.Y" }}</td>
+                                    <td>{{ case.start_date|date:"d.m.Y" }}</td>
+                                    <td>{{ case.end_date|date:"d.m.Y" }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% endif %}
+
+        {% else %}
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-center">1234</h5>
+                            <!--<p class="card-text"><strong>Some quick example text to build on the card title and make up the bulk of the card's content.</strong></p>-->
+                            <a href="#" class="btn btn-outline-success">Patients</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-center">4567</h5>
+                            <!--<p class="card-text"><strong>Some quick example text to build on the card title and make up the bulk of the card's content.</strong></p>-->
+                            <a href="#" class="btn btn-outline-warning">Pending</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-center">6789</h5>
+                            <!--<p class="card-text"><strong>Some quick example text to build on the card title and make up the bulk of the card's content.</strong></p>-->
+                            <a href="#" class="btn btn-outline-info">Doctors</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            function listenForPersonClick() {
+                $(".cases-table-row").click(function () {
+                    pID = $(this).data('id');
+                    window.open('case/' + pID, "_blank");
+                });
+            }
+
+            function initPage() {
+                listenForPersonClick();
+            }
+
+            initPage();
+        })
+    </script>
+{% endblock %}
