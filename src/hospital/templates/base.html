@@ -4,7 +4,7 @@
 
 {% block body %}
 <nav class="navbar bg-light fixed-top flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Health Project</a>
+        <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{% url 'home' %}">Health Project</a>
         <ul class="navbar-nav px-3">
             <li class="nav-item text-nowrap">
                 {% if user.is_authenticated %}
