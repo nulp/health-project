@@ -47,9 +47,36 @@
                         <hr>
                         <div class="row">
                             <div class="col-sm-12">
-                                 <p class="text-center">
-                                <button class="btn btn-success">пошук ліків</button>
-                            </p>
+                                <p class="text-center">
+                                    <button class="btn btn-success">пошук ліків</button>
+                                </p>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="card" style="width: 100%">
+                                        <table class="table table-striped active-cases-table">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Назва</th>
+                                                    <th scope="col">Міжнародна назва</th>
+                                                    <th scope="col">Виробник</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for m in meds %}
+                                                <tr class="cases-table-row" data-id="{{ case.id }}">
+                                                    <td>{{ m.uk_name }}</td>
+                                                    <td>{{ m.uni_name }}</td>
+                                                    <td>{% for mnf in m.manufacturer.all %}
+                                                        {{ mnf }};
+                                                    {% endfor %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
 
                         </div>

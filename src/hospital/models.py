@@ -165,12 +165,18 @@ class Disease(models.Model):
     name = models.CharField(max_length=250)
     disease_type = models.CharField(max_length=250)
 
+    def __str__(self):
+        return self.name
+
 
 class Diagnose(models.Model):
     disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
     valid = models.BooleanField(default=True)
-    localization = models.CharField(max_length=150)
+    localization = models.CharField(max_length=150, null=True, blank=True)
+
+    def __str__(self):
+        return self.disease.name + ' ' + (self.localization if self.localization else '')
 
 
 class PatientPathology(models.Model):
@@ -201,6 +207,10 @@ class Case(models.Model):
 
     class Meta:
         ordering = ['-pk']
+
+    def __str__(self):
+        return self.patient.full_name + ' ' + ('/ ' + self.diagnose.disease.name if self.diagnose else '')
+
 
     # @property
     # def pathologies(self):

@@ -2,11 +2,12 @@ from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.postgres.search import SearchVector
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 
-from .models import Patient, Doctor, Case
+from .models import Patient, Doctor, Case, Medicament
 from .forms import PatientForm
 
 import time
@@ -40,11 +41,19 @@ def home_view(request):
 def show_case_view(request, pk):
 
     case = get_object_or_404(Case, pk=pk)
-
     ctx = {
         'case': case,
         'patient': case.patient
     }
+
+    # if request.method == 'POST':
+    #     if request.post.get()
+    if case.diagnose:
+
+        meds = Medicament.objects.annotate(search=SearchVector('indication'),).filter(search=case.diagnose.disease.name)
+
+        ctx['meds'] = meds
+
     return render(request, 'case.html', context=ctx)
 
 
