@@ -145,6 +145,10 @@ class Medicament(models.Model):
     mnn = models.CharField(max_length=50)
     farm_group = models.ManyToManyField('FarmGroup')
 
+    contraindication = models.TextField(null=True)
+    indication = models.TextField(null=True)
+    json_instruction = JSONField(null=True)
+
     def __str__(self):
         return self.uk_name
 
