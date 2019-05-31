@@ -6,9 +6,11 @@ from django.contrib.postgres.search import SearchVector
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
+from django.views.generic import ListView
 
 from .models import Patient, Doctor, Case, Medicament
 from .forms import PatientForm
+from .utils import get_url_without_param
 
 import time
 
@@ -39,7 +41,6 @@ def home_view(request):
 
 
 def show_case_view(request, pk):
-
     case = get_object_or_404(Case, pk=pk)
     ctx = {
         'case': case,
@@ -49,12 +50,35 @@ def show_case_view(request, pk):
     # if request.method == 'POST':
     #     if request.post.get()
     if case.diagnose:
-
-        meds = Medicament.objects.annotate(search=SearchVector('indication'),).filter(search=case.diagnose.disease.name)
+        meds = Medicament.objects.annotate(search=SearchVector('indication'), ).filter(
+            search=case.diagnose.disease.name)
 
         ctx['meds'] = meds
 
     return render(request, 'case.html', context=ctx)
+
+
+class MedicamentListView(ListView):
+    model = Medicament
+    template_name = 'medicament_list.html'
+    paginate_by = 100  # if pagination is desired
+
+    def get_queryset(self):
+        meds = Medicament.objects.all()
+        if self.request.GET.get('q', None):
+            meds = Medicament.objects.annotate(search=
+                                               SearchVector('uk_name') +
+                                               SearchVector('indication') +
+                                               SearchVector('uni_name')
+                                               ).filter(
+                search=self.request.GET.get('q'))
+        return meds
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['count'] = self.object_list.count()
+        context['path_without_page'] = get_url_without_param(self.request.get_full_path())
+        return context
 
 
 def patient_form_view(request):

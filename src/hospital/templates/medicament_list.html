@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Ліки{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="row" style="margin-top: 20px;">
+            <div style="width: 100%; margin-top: 10px">
+                <div class="card" style="width: 100%; padding-bottom: 20px"><h3 class="text-center">Ліки</h3>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-12 text-center">
+                            <form>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4 offset-4">
+                                        <label for="search-q"></label>
+                                        <input type="text" class="form-control" id='search-q' name='q'
+                                               value="{{ request.GET.q }}"
+                                               placeholder="Пошук по назві та показанянм">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Шукати</button>
+                                <hr>
+                                <small class="text-center text-muted">Кількість результатів {{ count }}</small>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 20px;">
+            <div style="width: 100%; margin-top: 10px">
+                <div class="col-sm-12">
+                    <div class="card" style="width: 100%">
+                        <table class="table table-striped active-cases-table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Назва</th>
+                                <th scope="col">Міжнародна назва</th>
+                                <th scope="col">Виробник</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for m in object_list %}
+                                <tr class="medicament-table-row" data-id="{{ m.id }}">
+                                    <td>{{ m.uk_name }}</td>
+                                    <td>{{ m.uni_name }}</td>
+                                    <td>{% for mnf in m.manufacturer.all %}
+                                        {{ mnf }};
+                                    {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 align-content-center ">
+                <p class="">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+{#                            <li class="page-item"><a class="page-link" href="{{ path_without_page }}page=1">1</a></li>#}
+                            <li class="page-item"><a class="page-link"
+                                                     href="{{ path_without_page }}page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <a class="page-link" href="#">{{ page_obj.number }}<span class="sr-only">(current)</span></a>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item"><a class="page-link"
+                                                     href="{{ path_without_page }}page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+{#                            <li class="page-item"><a class="page-link"#}
+{#                                                     href="{{ path_without_page }}page={{ page_obj.paginator.num_pages }}">Last</a>#}
+{#                            </li>#}
+                        {% endif %}
+                    </ul>
+                </nav>
+            </p>
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+            function listenForPersonClick() {
+                $(".medicament-table-row").dblclick(function () {
+                    pID = $(this).data('id');
+                    window.open('/medicament/' + pID, "_blank");
+                });
+            }
+
+            function initPage() {
+                listenForPersonClick();
+            }
+
+            initPage();
+        })
+    </script>
+{% endblock %}

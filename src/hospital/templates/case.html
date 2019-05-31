@@ -56,15 +56,15 @@
                                     <div class="card" style="width: 100%">
                                         <table class="table table-striped active-cases-table">
                                             <thead>
-                                                <tr>
-                                                    <th scope="col">Назва</th>
-                                                    <th scope="col">Міжнародна назва</th>
-                                                    <th scope="col">Виробник</th>
-                                                </tr>
+                                            <tr>
+                                                <th scope="col">Назва</th>
+                                                <th scope="col">Міжнародна назва</th>
+                                                <th scope="col">Виробник</th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                            {% for m in meds %}
-                                                <tr class="cases-table-row" data-id="{{ case.id }}">
+                                            {% for m in object_list %}
+                                                <tr class="medicament-table-row" data-id="{{ m.id }}">
                                                     <td>{{ m.uk_name }}</td>
                                                     <td>{{ m.uni_name }}</td>
                                                     <td>{% for mnf in m.manufacturer.all %}
@@ -95,12 +95,19 @@
 
             function initPage() {
                 $('#meds-show-btn').click(function () {
-                    if ($('#meds-table').is(":hidden")){
-                        $('#meds-table').show();
+                    var $mdt = $('#meds-table');
+                    if ($mdt.is(":hidden")) {
+                        $mdt.show();
                     } else {
-                        $('#meds-table').hide();
+                        $mdt.hide();
                     }
-                })
+                });
+
+                $(".medicament-table-row").dblclick(function () {
+                    pID = $(this).data('id');
+                    window.open('/medicament/' + pID, "_blank");
+                });
+
             }
 
             initPage();

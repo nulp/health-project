@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import home_view, login_view, logout_view, show_case_view
+from .views import home_view, login_view, logout_view, show_case_view, MedicamentListView
 from .utils import instruction_db_fill_test_view
 
 
@@ -10,6 +10,7 @@ path('test_fill/<int:mn>/<int:mx>/', instruction_db_fill_test_view, name='test_f
     # auth
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
+    path('medicament/', MedicamentListView.as_view(), name='medicament'),
     # patient
     # path('case/create/', create_case_view, name="create_case"),
     path('case/<int:pk>/', show_case_view, name="show_case"),

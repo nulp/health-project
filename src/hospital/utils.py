@@ -9,6 +9,21 @@ from django.http import HttpResponse
 
 from .models import Patient, Country, Medicament, Applicant, Manufacturer, FarmGroup, MedType
 
+from urllib.parse import urlparse, parse_qs, urlencode
+
+
+def get_url_without_param(url, param='page'):
+    u = urlparse(url)
+    query = parse_qs(u.query)
+    query.pop(param, None)
+    u = u._replace(query=urlencode(query, True))
+    u = u.geturl()
+    if len(query) > 0:
+        u += '&'
+    else:
+        u += '?'
+    return u
+
 
 def csv_converter(path, f):
     with open(path + f, 'r', encoding='cp1251') as infile, open(path + 'final.csv', 'w', encoding='utf-8',
