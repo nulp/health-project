@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Запис | {{ case.patient }}{% endblock %}
+
+{% block main %}
+
+    <div class="container" style="margin-top: 30px">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title text-center">Історія хвороби №{{ case.id }}</h4>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h5 class="card-text"><b>Пацієнт:</b> {{ patient.full_name }}</h5>
+                                <p class="card-text" style="margin: 0;"><b>Поступив: </b>{{ case.start_date }}</p>
+                                {% if case.end_date %}
+                                    <p class="card-text" style="margin: 0;"><b>Закрито: </b>{{ case.end_date }}</p>
+                                {% endif %}
+                                <hr style="margin: 5px;">
+                                <p class="card-text" style="margin: 0;"><b>Лікар:</b> {{ case.doctor }}</p>
+                            </div>
+                            <div class="col-sm-6">
+                                <h5 class="card-text"><b>Діагноз:</b>
+                                    <span>
+                                        {% if case.diagnose %}
+                                            {{ case.diagnose }}
+                                        {% else %}
+                                            відсутній
+                                        {% endif %}
+                                    </span>
+                                </h5>
+                                <hr>
+                                <p style="margin: 0;"><b> Супутні патології:</b> відсутні</p>
+                            </div>
+                        </div>
+                        {% if case.comment %}
+                            <hr>
+                            <p class="card-text"><b>Коментар: </b>{{ case.comment }}</p>
+                        {% endif %}
+                        {#                        <p class="card-text">#}
+                        {#                            <small class="text-muted">Last updated 3 mins ago</small>#}
+                        {#                        </p>#}
+
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                 <p class="text-center">
+                                <button class="btn btn-success">пошук ліків</button>
+                            </p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block script %}
+    <script>
+        $(document).ready(function () {
+
+            function initPage() {
+
+            }
+
+            initPage();
+        })
+    </script>
+{% endblock %}

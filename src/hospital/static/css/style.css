@@ -114,3 +114,16 @@ main button {
     display: flex;
     align-items: center
 }
+
+
+.active-cases-table td, .active-cases-table th {
+    padding: 5px 10px !important;
+}
+.active-cases-table {
+    margin-bottom: 0!important;
+}
+
+.cases-table-row:hover {
+    cursor: pointer;
+    background-color: #fafafa !important;
+}

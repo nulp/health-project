@@ -47,10 +47,14 @@ class Patient(models.Model):
     GENDER_CHOICES = (
         ('M', 'Male'),
         ('F', 'Female'),
-        ('NB', 'Non_binary')
+        ('NB', 'Non binary')
     )
 
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+
+    @property
+    def full_name(self):
+        return self.surname + ' ' + self.name + ' ' + self.patronymic
 
     def __str__(self):
         return self.surname + ' ' + self.name
@@ -67,7 +71,7 @@ class DoctorSpeciality(models.Model):
 
 
 class Doctor(models.Model):
-    user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE, related_name='doctor')
     name = models.CharField(max_length=64)
     surname = models.CharField(max_length=64)
     patronymic = models.CharField(max_length=64)
@@ -106,7 +110,7 @@ class Substance(models.Model):
 
 
 class Applicant(models.Model):
-    uk_name = models.CharField(max_length=250)
+    uk_name = models.CharField(max_length=500)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     address = models.TextField()
 
@@ -115,7 +119,7 @@ class Applicant(models.Model):
 
 
 class Manufacturer(models.Model):
-    uk_name = models.CharField(max_length=250)
+    uk_name = models.CharField(max_length=500)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     address = models.TextField()
 
@@ -146,16 +150,12 @@ class Medicament(models.Model):
     flora = models.ManyToManyField('Flora')
     disease = models.ManyToManyField('Disease')
 
-    MNN_CHOICES = (
-        ('M', 'Моно'),
-        ('C', 'Комбінований'),
-        ('N', 'Без МНН')
-    )
-
-    mnn = models.CharField(max_length=1, choices=MNN_CHOICES)
-    issuance = models.BooleanField()
+    mnn = models.CharField(max_length=50)
     farm_group = models.ManyToManyField('FarmGroup')
-    description = models.CharField(max_length=500)
+
+    contraindication = models.TextField(null=True)
+    indication = models.TextField(null=True)
+    json_instruction = JSONField(null=True)
 
     def __str__(self):
         return self.uk_name
@@ -166,24 +166,17 @@ class Disease(models.Model):
     disease_type = models.CharField(max_length=250)
 
 
-class Diagnoses(models.Model):
+class Diagnose(models.Model):
     disease = models.ForeignKey(Disease, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
     valid = models.BooleanField(default=True)
     localization = models.CharField(max_length=150)
 
 
-class Pathologie(models.Model):
-    name = models.CharField(max_length=150)
-
-    def __str__(self):
-        return self.name
-
-
-class PatientPathologie(models.Model):
-    pathologie = models.ForeignKey(Pathologie, on_delete=models.CASCADE)
+class PatientPathology(models.Model):
+    pathology = models.ForeignKey(Disease, on_delete=models.CASCADE)
     start_date = models.DateField(auto_now=False, auto_now_add=True)
-    end_date = models.DateField(auto_now=False, auto_now_add=False)
+    end_date = models.DateField(auto_now=False, auto_now_add=False, null=True)
     permanent = models.BooleanField(default=None, blank=True, null=True)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
 
@@ -198,62 +191,77 @@ class Flora(models.Model):
 class Case(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    comment = models.TextField()
-    start_date = models.DateField(auto_now=True)
-    end_date = models.DateField(auto_now=True)
+
+    diagnose = models.ForeignKey(Diagnose, on_delete=models.CASCADE, null=True)
+
+    comment = models.TextField(null=True, blank=True)
+
+    start_date = models.DateField(auto_now_add=True)
+    end_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-pk']
+
+    # @property
+    # def pathologies(self):
+    #     return PatientPathology.objects.filter()
 
 
 class Event(models.Model):
-    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='events')
+
+    # do we need this?
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    data = JSONField()
 
+    data = JSONField()  # {type: '[measurement, analysis, diagnose_change, flora, patient_pathology]', id: 1}
+    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
 
-class EventDiagnos(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    diagnos = models.ForeignKey(Diagnoses, on_delete=models.CASCADE)
+    comment = models.TextField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-pk']
 
 
 class CaseFlora(models.Model):
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='floras')
     flora = models.ForeignKey(Flora, on_delete=models.CASCADE)
 
 
-class CasePathologie(models.Model):
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
-    pathologie = models.ForeignKey(Pathologie, on_delete=models.CASCADE)
+# реалізувати через event ?
+# class CasePathology(models.Model):
+#     case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='patient_pathologies')
+#     patient_pathology = models.ForeignKey(PatientPathology, on_delete=models.CASCADE)
 
 
 class Analysis(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    updated = models.DateTimeField(auto_now=True, auto_now_add=False)
-    start_date = models.DateField(auto_now=True)
-    end_date = models.DateField(auto_now=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='analysis')
     data = JSONField()
+
+    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True, auto_now_add=False)
 
 
 class Prescription(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+
     timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     medicament = models.ForeignKey(Medicament, on_delete=models.CASCADE)
-    quantity = models.TextField()
-    reaction = models.CharField(max_length=150)
+    quantity = models.CharField(max_length=256)
+    reaction = models.CharField(max_length=256)
 
 
 class Measurement(models.Model):
-    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     data = JSONField()
+    timestamp = models.DateTimeField(auto_now=False, auto_now_add=True)
 
 
-class EventComment(models.Model):
-    comment = models.TextField()
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.comment
+# class EventComment(models.Model):
+#     comment = models.TextField()
+#     event = models.ForeignKey(Event, on_delete=models.CASCADE)
+#
+#     def __str__(self):
+#         return self.comment
 
 
 """

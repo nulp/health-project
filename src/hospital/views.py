@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 
-from .models import Patient
+from .models import Patient, Doctor, Case
 from .forms import PatientForm
 
 import time
@@ -13,8 +14,38 @@ import time
 
 # Create your views here.
 
+@login_required
 def home_view(request):
-    return render(request, 'index.html')
+    old_cases = None
+    active_cases = None
+
+    try:
+        doctor = request.user.doctor
+    except Doctor.DoesNotExist:
+        doctor = None
+    if doctor is not None:
+        qs = Case.objects.filter(doctor__user_id=request.user.id)
+        old_cases = qs.filter(end_date__isnull=False)
+        active_cases = qs.filter(end_date__isnull=True)
+
+    ctx = {
+        'doctor': doctor,
+        'active_cases': active_cases,
+        'old_cases': old_cases,
+
+    }
+    return render(request, 'index.html', context=ctx)
+
+
+def show_case_view(request, pk):
+
+    case = get_object_or_404(Case, pk=pk)
+
+    ctx = {
+        'case': case,
+        'patient': case.patient
+    }
+    return render(request, 'case.html', context=ctx)
 
 
 def patient_form_view(request):
@@ -29,7 +60,6 @@ def patient_form_view(request):
                                        last_name=data['last_name']
                                        )
         patient = Patient.objects.create(user=User.objects.get(username=('test' + t)),
-                                         ssn=data['zip_code'],
                                          birthday=data['birthday'],
                                          street=data['street'],
                                          city=data['city'],
