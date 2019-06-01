@@ -12,6 +12,7 @@ from .models import Patient, Doctor, Case, Medicament
 from .forms import PatientForm
 from .utils import get_url_without_param
 
+import json
 import time
 
 
